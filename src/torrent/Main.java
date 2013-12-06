@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
+// /home/mike/bittorrent-project/Torrent/src/torrent/this.torrent
+
 public class Main {
 	
 	private final static Logger LOGGER = Logger.getLogger(Main.class .getName()); 
@@ -64,6 +66,8 @@ public class Main {
 	}
 	
 	
+	
+	
 	/** 
 	 * This method attempts to download the given torrent.
 	 * @param fileNameString the name of the torrent file (metainfo file) whose stuff we are trying
@@ -71,9 +75,16 @@ public class Main {
 	 */
 	private static void download(String fileNameString) {
 		if (fileNameString == null) {
+			System.err.println("in main.download(); arg null");
 			return;
 		}
-		File torFile = new File(fileNameString);
+		
+		System.out.println(System.getProperty("user.dir"));
+		Metainfo metainfo = new Metainfo(fileNameString);
+		
+		System.out.println(metainfo.trackersToSring());
+		System.out.println(metainfo.getInfoHash(fileNameString));
+		
 	}
 
 
