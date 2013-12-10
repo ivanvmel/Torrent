@@ -1,5 +1,0 @@
-class Info
-
-
-
-end
