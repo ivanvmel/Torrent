@@ -45,7 +45,7 @@ class Metainfo
     # compute the info hash here
     
     @info_hash =  Digest::SHA1.digest(dict["info"].bencode)
-    puts "HASH : " + Digest::SHA1.hexdigest(dict["info"].bencode)
+    #puts "HASH : " + Digest::SHA1.hexdigest(dict["info"].bencode)
       
     if(@trackers.size == 0) then
       puts "Zero trackers. Cannot proceed. Exiting."
@@ -56,4 +56,4 @@ class Metainfo
   
 end
 
-#meta_info_file = Metainfo.new("md.torrent")
+
