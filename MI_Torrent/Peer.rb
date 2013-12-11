@@ -18,10 +18,10 @@ class Peer
 
     @connected = false
 
-    @peer_choked = true
+    @peer_choking = true
     @peer_interested = false
-    @client_choked = true
-    @client_interested = true
+    @am_choking = true
+    @am_interested = true
 
     @timeout_val = 5
 
@@ -67,26 +67,59 @@ class Peer
       }
 
     rescue
-     # puts "could not connect to : " + @string_ip
-      #$stdout.flush
+      # puts "could not connect to : " + @string_ip
+      # $stdout.flush
     end
 
-  end
+    # documentation :
+    # this method receives a message from the peer and parses the message
+    # said message returns a message data structure, return nil if timeout
 
-  def send_interested()
+    def recv_msg()
 
-    interested = "\x00\x00\x00\x01\x02"
+      begin
 
-    begin
+        Timeout::timeout(@timeout_val){
 
-      Timeout::timeout(@timeout_val){
+          length = 0
+          id = 0
+          data = @socket.recv(5)
 
-        @socket.write(interested)
+          # make sure we actually got something
+          if data == nil then return nil end
 
-      }
+          length += data.each_byte.to_a[0] * (2 ** 24)
+          length += data.each_byte.to_a[1] * (2 ** 16)
+          length += data.each_byte.to_a[2] * (2 ** 8)
+          length += data.each_byte.to_a[3]
 
-    rescue
-      puts "could not send_interested() to : " + @string_ip
+          id = data.each_byte.to_a[4]
+
+          case length
+
+          when 0
+            puts "0"
+          when 1
+            puts "1"
+          when 3
+            puts "3"
+          when 5
+            puts "5"
+          when 13
+            puts "13"
+          else
+            puts length
+          end
+
+          $stdout.flush
+
+        }
+
+      rescue # Timeout::Error
+        puts "Yo - timed out on recv message"
+        return nil
+      end
+
     end
 
   end

@@ -221,6 +221,8 @@ class Metainfo
 
       # keep track of the good peers
       @good_peers.push(peer)
+      
+      peer.recv_msg()
 
     else
       return
