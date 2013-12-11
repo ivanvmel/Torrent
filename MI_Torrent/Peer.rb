@@ -4,6 +4,7 @@ class Peer
 
   attr_accessor :string_ip, :byte_ip, :port, :info_hash, :connected, :bitfield
   def initialize(meta_info_file, string_ip, port, byte_ip, peer_id)
+    @meta_info_file = meta_info_file
     @pstr = "BitTorrent protocol"
     @pstrlen = "\x13"
     @reserved = "\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -53,11 +54,11 @@ class Peer
         handshake = @socket.read 68
 
         if(handshake[28..47] != @info_hash) then
-          puts "wrong info hash"
+          puts "wrong info hash #{@meta_info_file.top_level_directory}"
           $stdout.flush
           return
         else
-          puts "correct info hash"
+          puts "correct info hash #{@meta_info_file.top_level_directory}"
           $stdout.flush
         end
 
@@ -66,8 +67,8 @@ class Peer
       }
 
     rescue
-      puts "could not connect to : " + @string_ip
-      $stdout.flush
+     # puts "could not connect to : " + @string_ip
+      #$stdout.flush
     end
 
   end

@@ -6,13 +6,23 @@ require 'uri'
 require 'digest/sha1'
 require 'fileutils'
 
-
 meta_info_files = Array.new
 
 # we take a comma separated list of trackers
-torrents = ["md.torrent"]
+torrents = ["ubuntu_recent.torrent", "linuxmint.torrent"]
   
 # for each tracker, get an associated meta-info file
 torrents.each{|torrent|
   meta_info_files.push(Metainfo.new(torrent))
+}
+
+meta_info_files.each{|meta_info_file| 
+  meta_info_file.spawn_peer_threads()
+}
+
+# wait for the meta_info_peers to finish
+meta_info_files.each{|meta_info_file| 
+  meta_info_file.peer_threads.each{|peer|
+    peer.join
+  }
 }

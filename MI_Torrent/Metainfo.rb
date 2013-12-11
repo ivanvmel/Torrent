@@ -6,7 +6,8 @@ require 'timeout'
 class Metainfo
 
   attr_accessor :trackers, :info_hash, :piece_length, :pieces, :num_pieces,
-  :name, :multi_file, :top_level_directory, :file_array, :peers, :good_peers
+  :name, :multi_file, :top_level_directory, :file_array, :peers, :good_peers,
+  :peer_threads
 
   @trackers
   @info_hash
@@ -27,7 +28,7 @@ class Metainfo
     @DEBUG = 1
     # five second timeout
     @timeout_val = 5
-    
+
     #################################################
     # IMPORTANT, CURRENTLY NOT ADDING UDP TRACKERS ##
     #################################################
@@ -42,6 +43,7 @@ class Metainfo
     @num_pieces = (dict["info"]["pieces"].length / 20)
     @piece_hashes = Array.new
     @peer_id = "MI000167890123456789"
+    @good_peers = Array.new
 
     @top_level_directory = dict["info"]["name"]
     @file_array = Array.new
@@ -141,6 +143,8 @@ class Metainfo
           res = Net::HTTP.get_response(uri)
         }
 
+        if res == "" then raise "Res is empty" end
+
         # read response
         res_dict = BEncode::load(res.body)
 
@@ -174,8 +178,8 @@ class Metainfo
 
       rescue
         # nothing to be done here
-        puts "Encountered an error with tracker : " + tracker
-        puts $!, $@
+        # puts "Encountered an error with tracker : " + tracker
+        #puts $!, $@
       end
 
     }
@@ -189,5 +193,39 @@ class Metainfo
 
   end
 
+  def spawn_peer_threads()
+
+    @peer_threads = Array.new
+
+    @peers.each{|peer|
+
+      curr_thread = Thread.new(){
+        run_algorithm(peer)
+      }
+
+      # wait for each thread to finish
+      @peer_threads.push(curr_thread)
+    }
+
+
+  end
+
+  def run_algorithm(peer)
+
+    # handshake
+    peer.handshake()
+
+    if peer.connected == true then
+
+      # keep track of the good peers
+      @good_peers.push(peer)
+
+    else
+      return
+    end
+
+  end
+
+  # class ends here
 end
 
