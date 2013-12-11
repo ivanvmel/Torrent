@@ -22,7 +22,7 @@ class Metainfo
   @peer_id
   @good_peers
   @timeout_val
-  
+  @bitfield
   def initialize(file_location)
 
     @DEBUG = 1
@@ -103,6 +103,9 @@ class Metainfo
       puts "Zero trackers. Cannot proceed. Exiting."
       exit
     end
+
+    # initialize bitfield to empty
+    @bitfield = Bitfield.new(@num_pieces)
 
     get_peers()
 
@@ -207,11 +210,10 @@ class Metainfo
       @peer_threads.push(curr_thread)
     }
 
-
   end
 
   def run_algorithm(peer)
-
+    
     # handshake
     peer.handshake()
 

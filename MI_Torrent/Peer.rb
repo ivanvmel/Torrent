@@ -14,7 +14,7 @@ class Peer
     @peer_id = peer_id
     @info_hash = meta_info_file.info_hash
     @handshake_info = "\x13BitTorrent protocol\x00\x00\x00\x00\x00\x00\x00\x00#{info_hash}#{peer_id}"
-    @bitfield = String.new
+    @bitfield = Bitfield.new(meta_info_file.num_pieces)
 
     @connected = false
 
