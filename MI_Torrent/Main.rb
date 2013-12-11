@@ -7,6 +7,8 @@ require 'digest/sha1'
 require 'fileutils'
 require './Bitfield'
 
+# this is the most recent file
+
 meta_info_files = Array.new
 
 # we take a comma separated list of trackers
