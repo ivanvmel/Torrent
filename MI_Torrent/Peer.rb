@@ -23,7 +23,7 @@ class Peer
     @am_choking = true
     @am_interested = true
 
-    @timeout_val = 5
+    @timeout_val = 10
 
     @DEBUG = 0
 
@@ -83,7 +83,7 @@ class Peer
 
           length = 0
           id = 0
-          data = @socket.recv(5)
+          data = @socket.recv(202)
 
           # make sure we actually got something
           if data == nil then return nil end
@@ -95,6 +95,15 @@ class Peer
 
           id = data.each_byte.to_a[4]
 
+          temp = Bitfield.new(data.length - 5)
+          bitmap_string = data.byteslice(5, data.length)
+          temp.set_bitfield_with_bitmap(bitmap_string)
+          #puts temp.bitfield().inspect
+          puts temp.struct_to_ones_and_zeroes()
+          puts "Byte 5 is : #{id}"
+          puts "Length is : #{temp.bitfield().length}"
+          $stdout.flush
+          
           case length
 
           when 0

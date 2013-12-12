@@ -55,12 +55,25 @@ class Bitfield
           @bitfield[offset + i] = true
         end
 
-
       end
       offset += 8
 
     }
 
+  end
+
+  def struct_to_ones_and_zeroes()
+    output = String.new
+
+    for i in (0 ... @bitfield.length) do
+      if(@bitfield[i] == true) then
+        output.concat("1")
+      else
+        output.concat("0")
+      end
+    end
+
+    return output
   end
 
   def set_bit(n, t_or_f)
