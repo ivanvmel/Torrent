@@ -1,6 +1,6 @@
 require './bencode.rb'
-require 'Metainfo.rb'
-require 'Peer.rb'
+require './Metainfo.rb'
+require './Peer.rb'
 require 'net/http'
 require 'uri'
 require 'digest/sha1'
