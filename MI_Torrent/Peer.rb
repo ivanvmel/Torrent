@@ -83,7 +83,7 @@ class Peer
 
           length = 0
           id = 0
-          data = @socket.recv(202)
+          data = @socket.recv(5)
 
           # make sure we actually got something
           if data == nil then return nil end
@@ -94,33 +94,16 @@ class Peer
           length += data.each_byte.to_a[3]
 
           id = data.each_byte.to_a[4]
-
-          temp = Bitfield.new(data.length - 5)
-          bitmap_string = data.byteslice(5, data.length)
-          temp.set_bitfield_with_bitmap(bitmap_string)
-          #puts temp.bitfield().inspect
-          puts temp.struct_to_ones_and_zeroes()
-          puts "Byte 5 is : #{id}"
-          puts "Length is : #{temp.bitfield().length}"
+          
+          puts length
+          puts id
           $stdout.flush
           
-          case length
-
-          when 0
-            puts "0"
-          when 1
-            puts "1"
-          when 3
-            puts "3"
-          when 5
-            puts "5"
-          when 13
-            puts "13"
-          else
-            puts length
-          end
-
-          $stdout.flush
+          # read as many bytes as the length specifies
+          
+          data = @socket.recv(length)
+          
+          puts "second rec length #{data.each_byte.to_a.length}"
 
         }
 
