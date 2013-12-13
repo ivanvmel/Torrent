@@ -29,4 +29,7 @@ meta_info_files.each{|meta_info_file|
   meta_info_file.peer_threads.each{|peer|
     peer.join
   }
+  puts "The tracker gave me #{meta_info_file.peers.length} peers"
+  puts "I have #{meta_info_file.good_peers.length} good peers"
 }
+

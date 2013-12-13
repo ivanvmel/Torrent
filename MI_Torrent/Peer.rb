@@ -1,9 +1,28 @@
 require 'timeout'
+require './Message.rb'
 
 class Peer
 
   attr_accessor :string_ip, :byte_ip, :port, :info_hash, :connected, :bitfield
   def initialize(meta_info_file, string_ip, port, byte_ip, peer_id)
+
+    # keep_alive has an id of -1, it is treated specially for our implementation - it's length is zero
+    @keep_alive_id = -1
+
+    # these do not have a payload
+    @choke_id = 0
+    @unchoke_id = 1
+    @interested_id = 2
+    @not_interested_id = 3
+
+    # these have a payload
+    @have_id = 4
+    @bitfield_id = 5
+    @request_id = 6
+    @piece_id = 7
+    @cancel_id = 8
+    @port_id = 9
+
     @meta_info_file = meta_info_file
     @pstr = "BitTorrent protocol"
     @pstrlen = "\x13"
@@ -54,11 +73,11 @@ class Peer
         handshake = @socket.read 68
 
         if(handshake[28..47] != @info_hash) then
-          puts "wrong info hash #{@meta_info_file.top_level_directory}"
+          #puts "wrong info hash #{@meta_info_file.top_level_directory}"
           $stdout.flush
-          return
+          Thread.terminate
         else
-          puts "correct info hash #{@meta_info_file.top_level_directory}"
+          #puts "correct info hash #{@meta_info_file.top_level_directory}"
           $stdout.flush
         end
 
@@ -77,39 +96,83 @@ class Peer
 
     def recv_msg()
 
+      debug = 1
+
       begin
 
         Timeout::timeout(@timeout_val){
 
           length = 0
           id = 0
-          data = @socket.recv(5)
+          data = @socket.recv(4)
 
           # make sure we actually got something
           if data == nil then return nil end
 
+          # how many more bytes we are to recv
           length += data.each_byte.to_a[0] * (2 ** 24)
           length += data.each_byte.to_a[1] * (2 ** 16)
           length += data.each_byte.to_a[2] * (2 ** 8)
           length += data.each_byte.to_a[3]
 
-          id = data.each_byte.to_a[4]
-          
-          puts length
-          puts id
+          additional_data = @socket.recv(length)
+
+          # if you are not sending as much data as you advertise, we drop you
+          if(additional_data.each_byte.to_a.length != length) then Thread.terminate end
+
+          if(debug) then
+            puts "length of data to be recvd : #{length}"
+            puts "length of data recv'd      : #{additional_data.each_byte.to_a.length}"
+          end
+
+          if(length != 0) then
+            message_id = additional_data.each_byte.to_a[0]
+          else
+            message_id = -1
+          end
+
+          puts "message starts"
+
+          new_message = Message.new(message_id, length, additional_data[1...additional_data.length])
+
+          puts "message end"
+
+          case message_id
+          when @keep_alive_id
+            puts "I got a keep_alive id"
+          when @choke_id
+            puts "I got choke id"
+          when @unchoke_id
+            puts "I got unchoke_id"
+          when @interested_id
+            puts "I got interested_id"
+          when @not_interested_id
+            puts "I got not_interested_id"
+          when @have_id
+            puts "I got have_id"
+          when @bitfield_id
+            puts new_message.payload().each_byte.to_a.length
+            @bitfield.set_bitfield_with_bitmap(new_message.payload())
+            puts "I got bitfield_id"
+          when @request_id
+            puts "I got request_id"
+          when @piece_id
+            puts "I got piece_id"
+          when @cancel_id
+            puts "I got cancel_id"
+          when @port_id
+            puts "I got port_id"
+          else
+            puts "You gave me #{message_id} -- I have no idea what to do with that."
+          end
+
           $stdout.flush
-          
-          # read as many bytes as the length specifies
-          
-          data = @socket.recv(length)
-          
-          puts "second rec length #{data.each_byte.to_a.length}"
 
         }
 
-      rescue # Timeout::Error
-        puts "Yo - timed out on recv message"
-        return nil
+      rescue
+        #puts $!, $@
+        return
       end
 
     end

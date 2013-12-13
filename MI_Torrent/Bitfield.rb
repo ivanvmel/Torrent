@@ -44,8 +44,6 @@ class Bitfield
     offset = 0
     input.each_char{|curr_char|
 
-      # puts curr_char.each_byte.first
-
       mike = 0
       for i in (0 ... 8) do
 
@@ -64,13 +62,20 @@ class Bitfield
 
   def struct_to_ones_and_zeroes()
     output = String.new
-
+    
+    counter = 1
+    
     for i in (0 ... @bitfield.length) do
       if(@bitfield[i] == true) then
         output.concat("1")
       else
         output.concat("0")
       end
+      
+      if(counter % 8 == 0) then
+        output.concat(" ")
+      end
+      counter = counter + 1
     end
 
     return output

@@ -23,6 +23,7 @@ class Metainfo
   @good_peers
   @timeout_val
   @bitfield
+  
   def initialize(file_location)
 
     @DEBUG = 1
